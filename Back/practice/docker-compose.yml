@@ -16,7 +16,7 @@ services:
     postgresBD:
         container_name: postgresauth
         image: postgres:10.4
-		expose:
+        expose:
             - 5432
         ports:
             - 5432:5432
@@ -33,6 +33,6 @@ services:
 
 networks:
     swan:
-	    driver: bridge
+        driver: bridge
 volumes:
    postgres:
