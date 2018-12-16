@@ -9,6 +9,7 @@ import com.exercice.practice.service.CategoryService;
 import com.exercice.practice.service.ProductService;
 import com.exercice.practice.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
 public class Controller {
@@ -70,15 +72,22 @@ public class Controller {
         return ResponseEntity.ok(brandService.save(brand));
     }
 
-    @RequestMapping(value = "/sale/{idProduct}", method = RequestMethod.POST)
-    public ResponseEntity<Sale> saveSale(@RequestBody Brand brand, @PathVariable Integer idProduct){
+    @RequestMapping(value = "/sale/{idCategory}/{idProduct}/{idBrand}", method = RequestMethod.POST)
+    public ResponseEntity<Sale> saveSale(@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date date, @PathVariable Integer idCategory, @PathVariable Integer idProduct, @PathVariable Integer idBrand){
         Sale sale=new Sale();
-        sale.setDate(new Date());
-        sale.setProduct(productService.findById(idProduct));
+        sale.setDate(date);
+        sale.setIdCategory(idCategory);
+        sale.setIdProduct(idProduct);
+        sale.setIdBrand(idBrand);
         return ResponseEntity.ok(saleService.save(sale));
     }
 
-    @GetMapping(value = "/category/all")
+    @RequestMapping(value = "/sale/{idCategory}/{idProduct}/{idBrand}", method = RequestMethod.GET)
+    public ResponseEntity<List<Sale>> getSales(@PathVariable Integer idCategory, @PathVariable Integer idProduct, @PathVariable Integer idBrand){
+        return ResponseEntity.ok(saleService.findByAttrs(idCategory,idProduct,idBrand));
+    }
+
+    @RequestMapping(value = "/category/all", method = RequestMethod.GET)
     public ResponseEntity<List<CategoryEnt>> categoryAllNames(){
         List<CategoryEnt> cats = new ArrayList();
         Iterable<CategoryEnt> categoryList = categoryService.findAll();

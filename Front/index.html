@@ -25,43 +25,156 @@
         <!--<![endif]-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
     <script type="text/javascript">
-        var dataToChartHumSoil = [
-                ['Medição', 'Solo'],
-                ['1',0]
-        ];
-        function refreshChartHumSoil(){
-            google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(drawChartHumSoil);
-            function drawChartHumSoil() {
-                var data = google.visualization.arrayToDataTable(dataToChartHumSoil);
-            var options = {
-                title: 'Humidade do solo',
-                hAxis: {title: 'It',  titleTextStyle: {color: '#333'}},
-                vAxis: {minValue: 0}
-            };
-                var chartHumSoil = new google.visualization.AreaChart(document.getElementById('chart'));
-                chartHumSoil.draw(data, options);
-          }
+        function getCategory(){
+            $.ajax({
+                type : "GET",
+                url : "http://localhost:8080/api/category/all",
+                success : function(data) {
+                    var i;
+                    for (i=0; i < data.length ; i++){
+                        var x = document.getElementById("selCat");
+                        var option = document.createElement("option");
+                        option.text = data[i].name;
+                        option.value = data[i].id;
+                        x.add(option);
+                    }
+                    getProductByCategory(data[0].id);
+                },
+                error: function(xhr, status, error) {
+                    callErrorAlert(xhr.responseText);
+                }
+            });
         }
-        refreshChartHumSoil();
 
+        function getProductByCategory(idCategory){
+            $.ajax({
+                type : "GET",
+                url : "http://localhost:8080/api/product/all/"+idCategory,
+                success : function(data) {
+                    $('#selPro')
+                        .find('option')
+                        .remove()
+                    var i;
+                    for (i=0; i < data.length ; i++){
+                        var x = document.getElementById("selPro");
+                        var option = document.createElement("option");
+                        option.text = data[i].name;
+                        option.value = data[i].id;
+                        x.add(option);
+                    }
+                    getBrandByProduct(data[0].id);
+                },
+                error: function(xhr, status, error) {
+                    callErrorAlert(xhr.responseText);
+                }
+            });
+        }
 
+        function getBrandByProduct(idBrand){
+            $.ajax({
+                type : "GET",
+                url : "http://localhost:8080/api/brand/all/"+idBrand,
+                success : function(data) {
+                    $('#selBra')
+                        .find('option')
+                        .remove()
+                    var i;
+                    for (i=0; i < data.length ; i++){
+                        var x = document.getElementById("selBra");
+                        var option = document.createElement("option");
+                        option.text = data[i].name;
+                        option.value = data[i].id;
+                        x.add(option);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    callErrorAlert(xhr.responseText);
+                }
+            });
+        }
 
-        function cancelEdit(){
-        $.ajax({
-            type : "GET",
-            url : "localhost:8080/api/category/all",
-            success : function(data) {
-                alert(data)
-            },
-            error: function(xhr, status, error) {
-                callErrorAlert(xhr.responseText);
+        function changeBrand(idBrand){
+            idCategory=document.getElementById("selCat").value;
+            idProduct=document.getElementById("selPro").value;
+            $.ajax({
+                type : "GET",
+                url : "http:localhost:8080/api/sale/"+idCategory+"/"+idProduct+"/"+idBrand,
+                success : function(data) {
+                    console.log(data);
+                    var obj = groupBy(data);
+                    console.log(obj);
+                    var dataChart = [
+                            ["Month", "Sales", { role: "style" } ]
+                        ];
+                    var i;
+                    for (i=0; i < obj.length; i++) {
+                        dataChart.push([obj[i][0].date.split("-")[1],obj[i].length,"blue"])
+                    }
+                    
+                    google.charts.load("current", {packages:['corechart']});
+                    google.charts.setOnLoadCallback(refreshChartHumSoil);
+                    refreshChartHumSoil(dataChart);
+                },
+                error: function(xhr, status, error) {
+                    callErrorAlert(xhr.responseText);
+                }
+            });
+        }
+    
+        getCategory();
+
+        function groupBy(collection) {
+            var i = 0, val, index,
+                values = [], result = [];
+            for (; i < collection.length; i++) {
+                val = collection[i]['date'];
+                index = values.indexOf(val);
+                if (index > -1)
+                    result[index].push(collection[i]);
+                else {
+                    values.push(val);
+                    result.push([collection[i]]);
+                }
             }
-        });
-    }
+            return result;
+        }
+
+        
+
+         var dataToChartHumSoil = [
+                ["Month", "Sales", { role: "style" } ],
+                ["Copper", 8.94, "#b87333"],
+                ["Silver", 10.49, "silver"],
+                ["Gold", 19.30, "gold"],
+                ["Platinum", 21.45, "color: #e5e4e2"]
+              ];
+        
+
+        function refreshChartHumSoil(dataToDraw){
+            var data = google.visualization.arrayToDataTable(dataToDraw);
+
+              var view = new google.visualization.DataView(data);
+              view.setColumns([0, 1,
+                               { calc: "stringify",
+                                 sourceColumn: 1,
+                                 type: "string",
+                                 role: "annotation" },
+                               2]);
+
+              var options = {
+                title: "Sales by Month for:",
+                height: 500,
+                bar: {groupWidth: "95%"},
+                legend: { position: "none" },
+              };
+              var chart = new google.visualization.ColumnChart(document.getElementById("chart"));
+              chart.draw(view, options);
+        }
+
     </script>
 
 
@@ -85,10 +198,7 @@
                 <form class="pure-form pure-form-stacked">
                     <fieldset>
                         <legend>Category</legend>
-                        <select>
-                            <option>AL</option>
-                            <option>CA</option>
-                            <option>IL</option>
+                        <select id="selCat" onchange="getProductByCategory(this.value)">
                         </select>
                     </fieldset>
                 </form>
@@ -97,10 +207,7 @@
                 <form class="pure-form pure-form-stacked">
                     <fieldset>
                         <legend>Product</legend>
-                        <select>
-                            <option>AL</option>
-                            <option>CA</option>
-                            <option>IL</option>
+                        <select id="selPro" onchange="getBrandByProduct(this.value)">
                         </select>
                     </fieldset>
                 </form>
@@ -109,10 +216,7 @@
                 <form class="pure-form pure-form-stacked">
                     <fieldset>
                         <legend>Brand</legend>
-                        <select>
-                            <option>AL</option>
-                            <option>CA</option>
-                            <option>IL</option>
+                        <select id="selBra" onchange="changeBrand(this.value)">
                         </select>
                     </fieldset>
                 </form>
@@ -128,7 +232,7 @@
 
 
     <div class="footer l-box is-center">
-        View the source of this layout to learn more. Made with love by the YUI Team.
+        Exercice - AGILE Solutions - Ricardo Robson
     </div>
 
 </div>

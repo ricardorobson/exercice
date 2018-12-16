@@ -1,5 +1,7 @@
 package com.exercice.practice.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -10,10 +12,12 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss")
     private Date date;
 
-    @OneToOne
-    private Product product;
+    private long idProduct;
+    private long idBrand;
+    private long idCategory;
 
     public Integer getId() {
         return id;
@@ -31,11 +35,27 @@ public class Sale {
         this.date = date;
     }
 
-    public Product getProduct() {
-        return product;
+    public long getIdProduct() {
+        return idProduct;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setIdProduct(long idProduct) {
+        this.idProduct = idProduct;
+    }
+
+    public long getIdBrand() {
+        return idBrand;
+    }
+
+    public void setIdBrand(long idBrand) {
+        this.idBrand = idBrand;
+    }
+
+    public long getIdCategory() {
+        return idCategory;
+    }
+
+    public void setIdCategory(long idCategory) {
+        this.idCategory = idCategory;
     }
 }

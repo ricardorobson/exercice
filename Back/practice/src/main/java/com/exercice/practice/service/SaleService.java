@@ -1,12 +1,12 @@
 package com.exercice.practice.service;
 
-import com.exercice.practice.model.Brand;
 import com.exercice.practice.model.Sale;
-import com.exercice.practice.repository.BrandRepository;
 import com.exercice.practice.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.List;
 
 @Service
 public class SaleService {
@@ -18,6 +18,10 @@ public class SaleService {
         return saleRepository.save(sale);
     }
 
+
+    public List<Sale> findByAttrs(Integer idCategory, Integer idProduct, Integer idBrand) {
+        return saleRepository.findByAttrs(idCategory, idProduct, idBrand);
+    }
     public Sale findById(Integer id){
         return saleRepository.findById(id).get();
     }
