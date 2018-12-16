@@ -32,7 +32,7 @@
         function getCategory(){
             $.ajax({
                 type : "GET",
-                url : "http://localhost:8080/api/category/all",
+                url : "http://18.212.120.208/api/category/all",
                 success : function(data) {
                     var i;
                     for (i=0; i < data.length ; i++){
@@ -53,7 +53,7 @@
         function getProductByCategory(idCategory){
             $.ajax({
                 type : "GET",
-                url : "http://localhost:8080/api/product/all/"+idCategory,
+                url : "http://18.212.120.208/api/product/all/"+idCategory,
                 success : function(data) {
                     $('#selPro')
                         .find('option')
@@ -77,7 +77,7 @@
         function getBrandByProduct(idBrand){
             $.ajax({
                 type : "GET",
-                url : "http://localhost:8080/api/brand/all/"+idBrand,
+                url : "http://18.212.120.208/api/brand/all/"+idBrand,
                 success : function(data) {
                     $('#selBra')
                         .find('option')
@@ -102,7 +102,7 @@
             idProduct=document.getElementById("selPro").value;
             $.ajax({
                 type : "GET",
-                url : "http:localhost:8080/api/sale/"+idCategory+"/"+idProduct+"/"+idBrand,
+                url : "http://18.212.120.208/api/sale/"+idCategory+"/"+idProduct+"/"+idBrand,
                 success : function(data) {
                     console.log(data);
                     var obj = groupBy(data);
